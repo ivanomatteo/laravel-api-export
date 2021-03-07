@@ -1,0 +1,59 @@
+{
+    "name": "ivanomatteo/laravel-api-export",
+    "description": "laravel api export to postman,burp suite, owasp zap",
+    "keywords": [
+        "ivanomatteo",
+        "laravel-api-export"
+    ],
+    "homepage": "https://github.com/ivanomatteo/laravel-api-export",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ivano Matteo",
+            "email": "ivanomatteo@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "spatie/laravel-package-tools": "^1.1",
+        "illuminate/contracts": "^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.3",
+        "spatie/laravel-ray": "^1.9",
+        "vimeo/psalm": "^4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "IvanoMatteo\\ApiExport\\": "src",
+            "IvanoMatteo\\ApiExport\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "IvanoMatteo\\ApiExport\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "psalm": "vendor/bin/psalm",
+        "test": "vendor/bin/phpunit --colors=always",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "IvanoMatteo\\ApiExport\\ApiExportServiceProvider"
+            ],
+            "aliases": {
+                "ApiExport": "IvanoMatteo\\ApiExport\\ApiExportFacade"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
