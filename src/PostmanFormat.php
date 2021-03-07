@@ -2,17 +2,8 @@
 
 namespace IvanoMatteo\ApiExport;
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Routing\Route as RouteItem;
-use ReflectionMethod;
-use ReflectionParameter;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-
-
 class PostmanFormat
 {
-
     private $data;
 
     public function __construct(array $routesInfo, $name = 'laravel_collection')
@@ -26,24 +17,24 @@ class PostmanFormat
         return $this->data;
     }
 
-    function basePostmanData($name)
+    public function basePostmanData($name)
     {
         return [
             "variable" => [
                 [
                     "key" => "base_url",
-                    "value" => "http://localhost"
-                ]
+                    "value" => "http://localhost",
+                ],
             ],
             "info" => [
                 "name" => now()->format('YmdHis') . "_$name.json",
-                "schema" => "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+                "schema" => "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
             ],
-            "item" => []
+            "item" => [],
         ];
     }
 
-    function createPostmanItems($routesInfo)
+    public function createPostmanItems($routesInfo)
     {
         $postmanItems = [];
         foreach ($routesInfo as $rinfo) {
@@ -53,10 +44,11 @@ class PostmanFormat
                 }
             }
         }
+
         return $postmanItems;
     }
 
-    function postmanItem($routeInfo, $method)
+    public function postmanItem($routeInfo, $method)
     {
         $item = [
 
@@ -67,14 +59,14 @@ class PostmanFormat
                 "url" => [
                     "raw" => '{{base_url}}/' . $routeInfo['routeUri'],
                     "host" => '{{base_url}}/' . $routeInfo['routeUri'],
-                ]
-            ]
+                ],
+            ],
         ];
 
-        if (!empty($routeInfo['parameters'])) {
+        if (! empty($routeInfo['parameters'])) {
             $item['request']['body'] = [
                 "mode" => 'raw',
-                'raw' => json_encode($routeInfo['parameters'])
+                'raw' => json_encode($routeInfo['parameters']),
             ];
         }
 

@@ -2,9 +2,9 @@
 
 namespace IvanoMatteo\ApiExport;
 
+use IvanoMatteo\ApiExport\Commands\ApiExportCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use IvanoMatteo\ApiExport\Commands\ApiExportCommand;
 
 class ApiExportServiceProvider extends PackageServiceProvider
 {
