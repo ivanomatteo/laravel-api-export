@@ -2,6 +2,7 @@
 
 namespace IvanoMatteo\ApiExport;
 
+use Illuminate\Support\Facades\App;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use IvanoMatteo\ApiExport\Commands\ApiExportCommand;
@@ -21,5 +22,9 @@ class ApiExportServiceProvider extends PackageServiceProvider
             ->hasViews()
             ->hasMigration('create_api_export_table')
             ->hasCommand(ApiExportCommand::class);
+
+        App::singleton('laravel-api-export', function () {
+            return new ApiExport();
+        });
     }
 }

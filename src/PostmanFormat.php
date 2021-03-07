@@ -15,7 +15,7 @@ class PostmanFormat
 
     private $data;
 
-    public function __construct(array $routesInfo, $name = 'laravel_collection')
+    public function __construct($routesInfo, $name = 'laravel_collection')
     {
         $this->data = $this->basePostmanData($name);
         $this->data['item'] = $this->createPostmanItems($routesInfo);
