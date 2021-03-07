@@ -3,8 +3,8 @@
 namespace IvanoMatteo\ApiExport\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use IvanoMatteo\ApiExport\ApiExportServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {

@@ -2,13 +2,12 @@
 
 namespace IvanoMatteo\ApiExport;
 
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Route as RouteItem;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use ReflectionMethod;
 use ReflectionParameter;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-
 
 class ApiExport
 {
@@ -17,10 +16,10 @@ class ApiExport
     private $routeSignaturePayloads = [];
     private $routeNamePayloads = [];
 
-    function getRoutesInfo()
+    public function getRoutesInfo()
     {
         $namedRoutes = collect(Route::getRoutes())->filter(function ($r) {
-            return !empty($r->getName());
+            return ! empty($r->getName());
         });
 
         return $namedRoutes->map(function (RouteItem $r) {
@@ -46,12 +45,12 @@ class ApiExport
             $headers = [
                 [
                     "key" => "Accept",
-                    "value" => "application/json"
+                    "value" => "application/json",
                 ],
                 [
                     "key" => "Content-Type",
-                    "value" => "application/json"
-                ]
+                    "value" => "application/json",
+                ],
             ];
 
             /*  $useBearerToken = !empty($routeInfo['middlewares']['auth:sanctum']) ||
@@ -76,18 +75,19 @@ class ApiExport
         });
     }
 
-
-    function getRequestParameter($controller, $method)
+    public function getRequestParameter($controller, $method)
     {
         $methodInfo = new ReflectionMethod($controller, $method);
         $request = collect($methodInfo->getParameters())->first(function (ReflectionParameter $p) {
             $class = optional($p->getType())->getName();
+
             return $class && is_subclass_of($class, Request::class);
         });
+
         return optional(optional($request)->getType())->getName();
     }
 
-    function getFakeParameters($requestClass)
+    public function getFakeParameters($requestClass)
     {
         $r = (new $requestClass());
         if (method_exists($r, 'fake')) {
@@ -96,7 +96,6 @@ class ApiExport
         if (method_exists($r, 'rules')) {
             return collect($r->rules())
                 ->mapWithKeys(function ($rules, $field) {
-
                     return [$field => "<$field>"];
                 })
                 ->toArray();
