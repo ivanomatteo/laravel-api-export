@@ -120,7 +120,7 @@ class ApiExport
         }
 
         $allowRules = config('api-export.nameAllowRules');
-        if (! empty($allowRules)) {
+        if (!empty($allowRules)) {
             foreach ($allowRules as $rule) {
                 if ($this->wildcardRuleMatch($rule, $name)) {
                     return true;
@@ -139,7 +139,7 @@ class ApiExport
         }
 
         $allowRules = config('api-export.uriAllowRules');
-        if (! empty($allowRules)) {
+        if (!empty($allowRules)) {
             foreach ($allowRules as $rule) {
                 if ($this->wildcardRuleMatch($rule, $uri)) {
                     return true;
@@ -227,6 +227,9 @@ class ApiExport
 
     public function getRequestClass($controller, $method)
     {
+        if (get_class($controller) === $method && method_exists($controller, '__invoke')) {
+            $method = '__invoke';
+        }
         $methodInfo = new ReflectionMethod($controller, $method);
         $request = collect($methodInfo->getParameters())->first(function (ReflectionParameter $p) {
             $class = optional($p->getType())->getName();
