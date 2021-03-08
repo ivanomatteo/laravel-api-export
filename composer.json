@@ -50,8 +50,10 @@
                 "IvanoMatteo\\ApiExport\\ApiExportServiceProvider"
             ],
             "aliases": {
-                "ApiExport": "IvanoMatteo\\ApiExport\\Facades\\ApiExport"
+                "ApiExport": "IvanoMatteo\\ApiExport\\Facades\\ApiExport",
+                "PostmanFormat": "IvanoMatteo\\ApiExport\\Facades\\PostmanFormat"
             }
+
         }
     },
     "minimum-stability": "dev",

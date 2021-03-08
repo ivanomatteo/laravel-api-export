@@ -26,5 +26,8 @@ class ApiExportServiceProvider extends PackageServiceProvider
         App::singleton('laravel-api-export', function () {
             return new ApiExport();
         });
+        App::singleton('laravel-api-export-postman', function () {
+            return new PostmanFormat();
+        });
     }
 }
