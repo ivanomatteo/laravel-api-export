@@ -52,7 +52,7 @@ class PostmanFormat
 
     public function postmanItem($routeInfo, $method)
     {
-        $headers = collect($routeInfo['headers'])->whereNotNull()->map(function($value,$name){
+        $headers = collect($routeInfo['headers'])->whereNotNull()->map(function ($value, $name) {
             return [
                 "key" => $name,
                 "value" => $value,

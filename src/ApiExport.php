@@ -25,14 +25,14 @@ class ApiExport
     private $middlewareGroups;
     private $routeMiddelwares;
 
-    function __construct()
+    public function __construct()
     {
         $kernel = resolve(\App\Http\Kernel::class);
         $this->middlewareGroups = $kernel->getMiddlewareGroups();
         $this->routeMiddelwares = $kernel->getRouteMiddleware();
     }
 
-    function setPayloadByRouteName(string $routeName, ?callable $payloadGenerator)
+    public function setPayloadByRouteName(string $routeName, ?callable $payloadGenerator)
     {
         if (empty($payloadGenerator)) {
             unset($this->payloadByRouteName[$routeName]);
@@ -41,7 +41,7 @@ class ApiExport
         }
     }
 
-    function setGlobalHeader(string $name, ?string $value)
+    public function setGlobalHeader(string $name, ?string $value)
     {
         if (empty(trim($value))) {
             unset($this->globalHeaders[$name]);
@@ -50,7 +50,7 @@ class ApiExport
         }
     }
 
-    function setMiddlewareHeaders(string $middlewareName, ?array $headers)
+    public function setMiddlewareHeaders(string $middlewareName, ?array $headers)
     {
         $fullname = $this->resolveMiddlewareFullName($middlewareName);
 
@@ -60,7 +60,8 @@ class ApiExport
             $this->middlewareHeaders[$fullname] = $headers;
         }
     }
-    function setMiddlewareGroupHeaders(string $middlewareGroup, ?array $headers)
+
+    public function setMiddlewareGroupHeaders(string $middlewareGroup, ?array $headers)
     {
         if (empty($headers)) {
             unset($this->middlewareGroupHeaders[$middlewareGroup]);
@@ -69,7 +70,7 @@ class ApiExport
         }
     }
 
-    function resolveMiddlewareFullName(string $name)
+    public function resolveMiddlewareFullName(string $name)
     {
         $parts = explode(':', $name);
 
@@ -83,12 +84,11 @@ class ApiExport
         if ($args) {
             $middlewareName .= ':' . $args;
         }
+
         return $middlewareName;
     }
 
-
-
-    function setCustomAdjustments(string $name, callable $adjust)
+    public function setCustomAdjustments(string $name, callable $adjust)
     {
         if (empty($headers)) {
             unset($this->customAdjustments[$name]);
@@ -97,13 +97,12 @@ class ApiExport
         }
     }
 
-
     private function wildcardRuleMatch($rule, $subject)
     {
-        $regex = str_replace("\\*",'.*',str_replace("/", "\\/", preg_quote($rule)));
+        $regex = str_replace("\\*", '.*', str_replace("/", "\\/", preg_quote($rule)));
+
         return preg_match('/^' . $regex . '$/', $subject);
     }
-
 
     private function filterRoutes(RouteItem $r)
     {
@@ -120,12 +119,13 @@ class ApiExport
         }
 
         $allowRules = config('api-export.nameAllowRules');
-        if (!empty($allowRules)) {
+        if (! empty($allowRules)) {
             foreach ($allowRules as $rule) {
                 if ($this->wildcardRuleMatch($rule, $name)) {
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -138,21 +138,18 @@ class ApiExport
         }
 
         $allowRules = config('api-export.uriAllowRules');
-        if (!empty($allowRules)) {
+        if (! empty($allowRules)) {
             foreach ($allowRules as $rule) {
                 if ($this->wildcardRuleMatch($rule, $uri)) {
                     return true;
                 }
             }
+
             return false;
         }
 
         return true;
     }
-
-
-
-
 
     public function getRoutesInfo()
     {
@@ -203,7 +200,7 @@ class ApiExport
                 }
             }
 
-            $info =  compact(
+            $info = compact(
                 'routeName',
                 'routeUri',
                 'routeMethods',
