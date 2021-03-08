@@ -3,15 +3,22 @@
 namespace IvanoMatteo\ApiExport\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
+use IvanoMatteo\ApiExport\ApiExportFacade as ApiExport;
+use IvanoMatteo\ApiExport\PostmanFormat;
 
 class ApiExportCommand extends Command
 {
-    public $signature = 'laravel-api-export';
+    public $signature = 'api-export:postman';
 
-    public $description = 'My command';
+    public $description = 'export api in postman format';
 
     public function handle()
     {
-        $this->comment('All done');
+        $data = (new PostmanFormat(ApiExport::getRoutesInfo()))->toArray();
+
+        Storage::put('postman/' . $data['info']['name'], json_encode($data, JSON_PRETTY_PRINT));
+        echo "created: \n";
+        echo storage_path('app/postman/' . $data['info']['name'])."\n";
     }
 }

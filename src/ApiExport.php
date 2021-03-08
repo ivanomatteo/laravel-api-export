@@ -12,15 +12,154 @@ use ReflectionParameter;
 class ApiExport
 {
     private $globalHeaders = [];
+    private $payloadByRouteName = [];
+    private $middlewareHeaders = [];
+    private $middlewareGroupHeaders = [
+        'api' => [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ],
+    ];
+    private $customAdjustments = [];
 
-    private $routeSignaturePayloads = [];
-    private $routeNamePayloads = [];
+    private $middlewareGroups;
+    private $routeMiddelwares;
+
+    function __construct()
+    {
+        $kernel = resolve(\App\Http\Kernel::class);
+        $this->middlewareGroups = $kernel->getMiddlewareGroups();
+        $this->routeMiddelwares = $kernel->getRouteMiddleware();
+    }
+
+    function setPayloadByRouteName(string $routeName, ?callable $payloadGenerator)
+    {
+        if (empty($payloadGenerator)) {
+            unset($this->payloadByRouteName[$routeName]);
+        } else {
+            $this->payloadByRouteName[$routeName] = $payloadGenerator;
+        }
+    }
+
+    function setGlobalHeader(string $name, ?string $value)
+    {
+        if (empty(trim($value))) {
+            unset($this->globalHeaders[$name]);
+        } else {
+            $this->globalHeaders[$name] = $value;
+        }
+    }
+
+    function setMiddlewareHeaders(string $middlewareName, ?array $headers)
+    {
+        $fullname = $this->resolveMiddlewareFullName($middlewareName);
+
+        if (empty($headers)) {
+            unset($this->middlewareHeaders[$fullname]);
+        } else {
+            $this->middlewareHeaders[$fullname] = $headers;
+        }
+    }
+    function setMiddlewareGroupHeaders(string $middlewareGroup, ?array $headers)
+    {
+        if (empty($headers)) {
+            unset($this->middlewareGroupHeaders[$middlewareGroup]);
+        } else {
+            $this->middlewareGroupHeaders[$middlewareGroup] = $headers;
+        }
+    }
+
+    function resolveMiddlewareFullName(string $name)
+    {
+        $parts = explode(':', $name);
+
+        $middlewareName = $parts[0];
+        array_shift($parts);
+        $args = implode(':', $parts);
+
+        if ($this->routeMiddelwares[$middlewareName] ?? null) {
+            $middlewareName = $this->routeMiddelwares[$middlewareName];
+        }
+        if ($args) {
+            $middlewareName .= ':' . $args;
+        }
+        return $middlewareName;
+    }
+
+
+
+    function setCustomAdjustments(string $name, callable $adjust)
+    {
+        if (empty($headers)) {
+            unset($this->customAdjustments[$name]);
+        } else {
+            $this->customAdjustments[$name] = $adjust;
+        }
+    }
+
+
+    private function wildcardRuleMatch($rule, $subject)
+    {
+        $regex = str_replace("\\*",'.*',str_replace("/", "\\/", preg_quote($rule)));
+        return preg_match('/^' . $regex . '$/', $subject);
+    }
+
+
+    private function filterRoutes(RouteItem $r)
+    {
+        $name = $r->getName();
+        if (config('api-export.onlyNamed')) {
+            if (empty($name)) {
+                return false;
+            }
+        }
+        foreach (config('api-export.nameDenyRules') as $rule) {
+            if ($this->wildcardRuleMatch($rule, $name)) {
+                return false;
+            }
+        }
+
+        $allowRules = config('api-export.nameAllowRules');
+        if (!empty($allowRules)) {
+            foreach ($allowRules as $rule) {
+                if ($this->wildcardRuleMatch($rule, $name)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        $uri = $r->uri();
+
+        foreach (config('api-export.uriDenyRules') as $rule) {
+            if ($this->wildcardRuleMatch($rule, $uri)) {
+                return false;
+            }
+        }
+
+        $allowRules = config('api-export.uriAllowRules');
+        if (!empty($allowRules)) {
+            foreach ($allowRules as $rule) {
+                if ($this->wildcardRuleMatch($rule, $uri)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+
+
+
 
     public function getRoutesInfo()
     {
-        $namedRoutes = collect(Route::getRoutes())->filter(function ($r) {
-            return ! empty($r->getName());
-        });
+        $namedRoutes = collect(Route::getRoutes())
+            ->filter(function ($r) {
+                return $this->filterRoutes($r);
+            });
 
         return $namedRoutes->map(function (RouteItem $r) {
             $routeName = $r->getName();
@@ -29,53 +168,61 @@ class ApiExport
             $routeUri = Str::replaceArray('?', [' (opzionale)'], $routeUri);
 
             $routeMethods = $r->methods();
-            $middlewares = array_fill_keys($r->gatherMiddleware(), true);
-
+            $middlewareGroups = array_intersect_key(
+                array_fill_keys($r->gatherMiddleware(), true),
+                $this->middlewareGroups,
+            );
+            $middlewares = array_fill_keys(Route::gatherRouteMiddleware($r), true);
 
             $controller = $r->getController();
             $method = $r->getActionMethod();
 
-            $parameters = null;
+            $payload = null;
 
-            $requestClass = $this->getRequestParameter($controller, $method);
-            if ($requestClass) {
-                $parameters = $this->getFakeParameters($requestClass);
+            if ($payloadGen = $this->payloadByRouteName[$routeName] ?? null) {
+                $payload = $payloadGen();
+            } else {
+                $requestClass = $this->getRequestClass($controller, $method);
+                if ($requestClass) {
+                    $payload = $this->getFakeParameters($requestClass);
+                }
             }
 
-            $headers = [
-                [
-                    "key" => "Accept",
-                    "value" => "application/json",
-                ],
-                [
-                    "key" => "Content-Type",
-                    "value" => "application/json",
-                ],
-            ];
+            $headers = $this->globalHeaders;
 
-            /*  $useBearerToken = !empty($routeInfo['middlewares']['auth:sanctum']) ||
-            !empty($routeInfo['middlewares']['auth:api']);
+            foreach ($middlewareGroups as  $g => $bool) {
+                $h = $this->middlewareGroupHeaders[$g] ?? null;
+                if ($h) {
+                    $headers = array_merge($headers, $h);
+                }
+            }
+            foreach ($middlewares as $m => $bool) {
+                $h = $this->middlewareHeaders[$m] ?? null;
+                if ($h) {
+                    $headers = array_merge($headers, $h);
+                }
+            }
 
-        if($useBearerToken){
-            $headers[] =  [
-                "key" => "Authorization",
-                "value" => "Bearer <token>"
-            ];
-        } */
-
-            return compact(
+            $info =  compact(
                 'routeName',
                 'routeUri',
                 'routeMethods',
                 'requestClass',
-                'parameters',
+                'payload',
                 'middlewares',
+                'middlewareGroups',
                 'headers'
             );
+
+            foreach ($this->customAdjustments as $name => $payloadAdjust) {
+                $info = $payloadAdjust($info);
+            }
+
+            return $info;
         });
     }
 
-    public function getRequestParameter($controller, $method)
+    public function getRequestClass($controller, $method)
     {
         $methodInfo = new ReflectionMethod($controller, $method);
         $request = collect($methodInfo->getParameters())->first(function (ReflectionParameter $p) {

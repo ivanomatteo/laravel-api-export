@@ -2,11 +2,13 @@
 
 namespace IvanoMatteo\ApiExport;
 
+use Illuminate\Support\Collection;
+
 class PostmanFormat
 {
     private $data;
 
-    public function __construct($routesInfo, $name = 'laravel_collection')
+    public function __construct(Collection $routesInfo, $name = 'laravel_collection')
     {
         $this->data = $this->basePostmanData($name);
         $this->data['item'] = $this->createPostmanItems($routesInfo);
@@ -50,12 +52,19 @@ class PostmanFormat
 
     public function postmanItem($routeInfo, $method)
     {
+        $headers = collect($routeInfo['headers'])->whereNotNull()->map(function($value,$name){
+            return [
+                "key" => $name,
+                "value" => $value,
+            ];
+        })->toArray();
+
         $item = [
 
             "name" => $routeInfo['routeName'] . ' - ' . $routeInfo['routeUri'],
             "request" => [
                 "method" => $method,
-                "header" => $routeInfo['headers'],
+                "header" => $headers,
                 "url" => [
                     "raw" => '{{base_url}}/' . $routeInfo['routeUri'],
                     "host" => '{{base_url}}/' . $routeInfo['routeUri'],
@@ -63,10 +72,10 @@ class PostmanFormat
             ],
         ];
 
-        if (! empty($routeInfo['parameters'])) {
+        if (! empty($routeInfo['payload'])) {
             $item['request']['body'] = [
                 "mode" => 'raw',
-                'raw' => json_encode($routeInfo['parameters']),
+                'raw' => json_encode($routeInfo['payload']),
             ];
         }
 
