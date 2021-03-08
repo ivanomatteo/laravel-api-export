@@ -25,7 +25,7 @@ class PostmanFormat
             "variable" => [
                 [
                     "key" => "base_url",
-                    "value" => "http://localhost",
+                    "value" => config('app.url'),
                 ],
             ],
             "info" => [
