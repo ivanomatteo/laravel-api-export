@@ -6,7 +6,6 @@ use Illuminate\Support\Collection;
 
 class PostmanFormat
 {
-
     private $variables = [];
 
     public function create(Collection $routesInfo, $name = 'laravel_collection')
@@ -22,14 +21,13 @@ class PostmanFormat
         $this->variables[$name] = $value;
     }
 
-
     public function basePostmanData($name)
     {
         $vars = [
             "base_url" => config('app.url'),
         ];
 
-        $vars = array_merge($vars,$this->variables);
+        $vars = array_merge($vars, $this->variables);
         $vars = $this->assocToPostmanFormat($vars);
 
         return [
@@ -72,7 +70,7 @@ class PostmanFormat
             ],
         ];
 
-        if (!empty($routeInfo['payload'])) {
+        if (! empty($routeInfo['payload'])) {
             $item['request']['body'] = [
                 "mode" => 'raw',
                 'raw' => json_encode($routeInfo['payload']),
@@ -82,12 +80,13 @@ class PostmanFormat
         return $item;
     }
 
-    function assocToPostmanFormat($assoc, $notNull = false)
+    public function assocToPostmanFormat($assoc, $notNull = false)
     {
         $coll = collect($assoc);
         if ($notNull) {
             $coll = $coll->whereNotNull();
         }
+
         return $coll->map(function ($value, $name) {
             return [
                 "key" => $name,
