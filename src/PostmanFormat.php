@@ -70,9 +70,9 @@ class PostmanFormat
             ],
         ];
 
-        if (!empty($routeInfo['payload'])) {
+        if (! empty($routeInfo['payload'])) {
             if ($method === 'GET') {
-                $query = '?'.http_build_query($routeInfo['payload'],'','&',PHP_QUERY_RFC3986);
+                $query = '?'.http_build_query($routeInfo['payload'], '', '&', PHP_QUERY_RFC3986);
                 $item['request']['url']['raw'] .= $query;
                 $item['request']['url']['host'] .= $query;
             } else {
