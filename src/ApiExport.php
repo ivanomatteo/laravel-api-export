@@ -89,9 +89,9 @@ class ApiExport
         return $middlewareName;
     }
 
-    public function setCustomAdjustments(string $name, callable $adjust)
+    public function setCustomAdjustments(string $name, ?callable $adjust)
     {
-        if (empty($headers)) {
+        if (empty($adjust)) {
             unset($this->customAdjustments[$name]);
         } else {
             $this->customAdjustments[$name] = $adjust;
