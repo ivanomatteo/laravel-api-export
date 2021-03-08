@@ -172,9 +172,10 @@ class ApiExport
             );
             $middlewares = array_fill_keys(Route::gatherRouteMiddleware($r), true);
             $controller = null;
-            try{
+
+            try {
                 $controller = $r->getController();
-            }catch(Throwable $t){
+            } catch (Throwable $t) {
             }
             $method = $r->getActionMethod();
 
@@ -183,7 +184,7 @@ class ApiExport
 
             if ($payloadGen = $this->payloadByRouteName[$routeName] ?? null) {
                 $payload = $payloadGen();
-            } else if($controller){
+            } elseif ($controller) {
                 $requestClass = $this->getRequestClass($controller, $method);
                 if ($requestClass) {
                     $payload = $this->getFakeParameters($requestClass);
