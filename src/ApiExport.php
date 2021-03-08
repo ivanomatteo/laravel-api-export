@@ -120,7 +120,7 @@ class ApiExport
         }
 
         $allowRules = config('api-export.nameAllowRules');
-        if (!empty($allowRules)) {
+        if (! empty($allowRules)) {
             foreach ($allowRules as $rule) {
                 if ($this->wildcardRuleMatch($rule, $name)) {
                     return true;
@@ -139,7 +139,7 @@ class ApiExport
         }
 
         $allowRules = config('api-export.uriAllowRules');
-        if (!empty($allowRules)) {
+        if (! empty($allowRules)) {
             foreach ($allowRules as $rule) {
                 if ($this->wildcardRuleMatch($rule, $uri)) {
                     return true;
