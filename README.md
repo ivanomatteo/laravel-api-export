@@ -47,6 +47,7 @@ return [
 
 ```php
 $laravel-api-export = new IvanoMatteo\ApiExport();
+
 echo $laravel-api-export->echoPhrase('Hello, IvanoMatteo!');
 ```
 
