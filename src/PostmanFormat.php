@@ -70,11 +70,17 @@ class PostmanFormat
             ],
         ];
 
-        if (! empty($routeInfo['payload'])) {
-            $item['request']['body'] = [
-                "mode" => 'raw',
-                'raw' => json_encode($routeInfo['payload']),
-            ];
+        if (!empty($routeInfo['payload'])) {
+            if ($method === 'GET') {
+                $query = '?'.http_build_query($routeInfo['payload'],'','&',PHP_QUERY_RFC3986);
+                $item['request']['url']['raw'] .= $query;
+                $item['request']['url']['host'] .= $query;
+            } else {
+                $item['request']['body'] = [
+                    "mode" => 'raw',
+                    'raw' => json_encode($routeInfo['payload']),
+                ];
+            }
         }
 
         return $item;
