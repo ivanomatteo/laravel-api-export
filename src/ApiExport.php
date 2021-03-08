@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use ReflectionMethod;
 use ReflectionParameter;
+use Throwable;
 
 class ApiExport
 {
@@ -27,7 +28,7 @@ class ApiExport
 
     public function __construct()
     {
-        $kernel = resolve(\App\Http\Kernel::class);
+        $kernel = resolve("\App\Http\Kernel");
         $this->middlewareGroups = $kernel->getMiddlewareGroups();
         $this->routeMiddelwares = $kernel->getRouteMiddleware();
     }
@@ -170,15 +171,19 @@ class ApiExport
                 $this->middlewareGroups,
             );
             $middlewares = array_fill_keys(Route::gatherRouteMiddleware($r), true);
-
-            $controller = $r->getController();
+            $controller = null;
+            try{
+                $controller = $r->getController();
+            }catch(Throwable $t){
+            }
             $method = $r->getActionMethod();
 
             $payload = null;
+            $requestClass = null;
 
             if ($payloadGen = $this->payloadByRouteName[$routeName] ?? null) {
                 $payload = $payloadGen();
-            } else {
+            } else if($controller){
                 $requestClass = $this->getRequestClass($controller, $method);
                 if ($requestClass) {
                     $payload = $this->getFakeParameters($requestClass);

@@ -4,7 +4,7 @@ namespace IvanoMatteo\ApiExport\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use IvanoMatteo\ApiExport\ApiExportFacade as ApiExport;
+use IvanoMatteo\ApiExport\Facades\ApiExport;
 use IvanoMatteo\ApiExport\PostmanFormat;
 
 class ApiExportCommand extends Command

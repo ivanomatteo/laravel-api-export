@@ -50,7 +50,7 @@
                 "IvanoMatteo\\ApiExport\\ApiExportServiceProvider"
             ],
             "aliases": {
-                "ApiExport": "IvanoMatteo\\ApiExport\\ApiExportFacade"
+                "ApiExport": "IvanoMatteo\\ApiExport\\Facades\\ApiExport"
             }
         }
     },

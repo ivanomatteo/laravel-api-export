@@ -1,13 +1,13 @@
 <?php
 
-namespace IvanoMatteo\ApiExport;
+namespace IvanoMatteo\ApiExport\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
  * @see \IvanoMatteo\ApiExport\ApiExport
  */
-class ApiExportFacade extends Facade
+class ApiExport extends Facade
 {
     protected static function getFacadeAccessor()
     {
