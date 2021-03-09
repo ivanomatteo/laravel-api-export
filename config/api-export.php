@@ -3,6 +3,9 @@
 return [
     'onlyNamed' => false,
 
+    'defaultName' => null,
+    'defaultBaseUri' => null,
+
     'nameAllowRules' => [
         // 'foo',
         // 'bar.baz*',

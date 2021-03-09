@@ -9,13 +9,19 @@ use IvanoMatteo\ApiExport\Facades\PostmanFormat;
 
 class ApiExportCommand extends Command
 {
-    public $signature = 'api-export:postman';
+    public $signature = 'api-export:postman {name?} {baseUri?}';
 
     public $description = 'export api in postman format';
 
     public function handle()
     {
-        $data = PostmanFormat::create(ApiExport::getRoutesInfo());
+        $name = $this->argument('name');
+        $baseUri = $this->argument('baseUri');
+
+        $name = $name ?? config('api-export.defaultName') ?? 'laravel_collection';
+        $baseUri = $baseUri ?? config('api-export.defaultBaseUri');
+
+        $data = PostmanFormat::create(ApiExport::getRoutesInfo(), $name, $baseUri);
 
         Storage::put('postman/' . $data['info']['name'], json_encode($data, JSON_PRETTY_PRINT));
         echo "created: \n";

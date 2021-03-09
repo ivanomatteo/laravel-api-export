@@ -8,9 +8,9 @@ class PostmanFormat
 {
     private $variables = [];
 
-    public function create(Collection $routesInfo, $name = 'laravel_collection')
+    public function create(Collection $routesInfo, $name = 'laravel_collection', $baseUri = null)
     {
-        $data = $this->basePostmanData($name);
+        $data = $this->basePostmanData($name, $baseUri);
         $data['item'] = $this->createPostmanItems($routesInfo);
 
         return $data;
@@ -21,10 +21,10 @@ class PostmanFormat
         $this->variables[$name] = $value;
     }
 
-    public function basePostmanData($name)
+    public function basePostmanData($name, $baseUri = null)
     {
         $vars = [
-            "base_url" => config('app.url'),
+            "base_url" => $baseUri ?? config('app.url'),
         ];
 
         $vars = array_merge($vars, $this->variables);
@@ -70,9 +70,9 @@ class PostmanFormat
             ],
         ];
 
-        if (! empty($routeInfo['payload'])) {
+        if (!empty($routeInfo['payload'])) {
             if ($method === 'GET') {
-                $query = '?'.http_build_query($routeInfo['payload'], '', '&', PHP_QUERY_RFC3986);
+                $query = '?' . http_build_query($routeInfo['payload'], '', '&', PHP_QUERY_RFC3986);
                 $item['request']['url']['raw'] .= $query;
                 $item['request']['url']['host'] .= $query;
             } else {
