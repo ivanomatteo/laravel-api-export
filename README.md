@@ -24,13 +24,6 @@ You can install the package via composer:
 composer require ivanomatteo/laravel-api-export
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --provider="IvanoMatteo\ApiExport\ApiExportServiceProvider" --tag="laravel-api-export-migrations"
-php artisan migrate
-```
-
 You can publish the config file with:
 ```bash
 php artisan vendor:publish --provider="IvanoMatteo\ApiExport\ApiExportServiceProvider" --tag="laravel-api-export-config"

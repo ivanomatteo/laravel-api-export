@@ -19,8 +19,7 @@ class ApiExportServiceProvider extends PackageServiceProvider
         $package
             ->name('laravel-api-export')
             ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_api_export_table')
+            //->hasViews()
             ->hasCommand(ApiExportCommand::class);
 
         App::singleton('laravel-api-export', function () {
