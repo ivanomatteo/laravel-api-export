@@ -227,6 +227,10 @@ class ApiExport
 
     public function getRequestClass($controller, $method)
     {
+        if($controller instanceof \Illuminate\Routing\ViewController){
+            return null;
+        }
+
         if (get_class($controller) === $method && method_exists($controller, '__invoke')) {
             $method = '__invoke';
         }
