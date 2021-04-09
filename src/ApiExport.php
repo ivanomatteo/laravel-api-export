@@ -227,7 +227,7 @@ class ApiExport
 
     public function getRequestClass($controller, $method)
     {
-        if($controller instanceof \Illuminate\Routing\ViewController){
+        if ($controller instanceof \Illuminate\Routing\ViewController) {
             return null;
         }
 
