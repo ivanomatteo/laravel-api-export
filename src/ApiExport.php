@@ -102,7 +102,7 @@ class ApiExport
     {
         $regex = str_replace("\\*", '.*', str_replace("/", "\\/", preg_quote($rule)));
 
-        return preg_match('/^' . $regex . '$/', $subject);
+        return preg_match('/^' . $regex . '$/', $subject ?? '');
     }
 
     private function filterRoutes(RouteItem $r)
